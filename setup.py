@@ -6,10 +6,12 @@ from Cython.Distutils import build_ext
 
 setup(
     name="PyZephyr",
-    version="0.2.0",
+    version="0.2.2",
     description="PyZephyr - Python bindings for the Zephyr messaging library",
-    author="Evan Broder",
-    author_email="broder@mit.edu",
+    #author="Evan Broder",
+    #author_email="broder@mit.edu",
+    author="Alejandro Sedeno",
+    author_email="asedeno@mit.edu",
     #url="http://ebroder.net/code/PyZephyr",
     license="MIT",
     requires=['Cython'],

@@ -23,26 +23,29 @@ class Subscriptions(set):
     """
     def __new__(cls):
         if not '_instance' in cls.__dict__:
-            cls._instance = super(Subscriptions, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
             init()
         return cls._instance
 
     def __del__(self):
         _z.cancelSubs()
-        super(Subscriptions, self).__del__()
+        try:
+            super().__del__()
+        except AttributeError:
+            pass
 
     def _fixTuple(self, item):
         if len(item) != 3:
-            raise TypeError, 'item is not a zephyr subscription tuple'
+            raise TypeError('item is not a zephyr subscription tuple')
 
         item = list(item)
         if item[2].startswith('*'):
             item[2] = item[2][1:]
 
         if '@' not in item[2]:
-            item[2] += '@%s' % _z.realm()
+            item[2] += f'@{_z.realm().decode("utf-8")}'
 
-        return tuple(item)
+        return tuple(x.encode('utf-8') for x in item)
 
     def add(self, item):
         item = self._fixTuple(item)
@@ -52,14 +55,14 @@ class Subscriptions(set):
 
         _z.sub(*item)
 
-        super(Subscriptions, self).add(item)
+        super().add(item)
 
     def remove(self, item):
         item = self._fixTuple(item)
 
         if item not in self:
-            raise KeyError, item
+            raise KeyError(item)
 
         _z.unsub(*item)
 
-        super(Subscriptions, self).remove(item)
+        super().remove(item)

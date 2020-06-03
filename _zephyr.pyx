@@ -19,7 +19,7 @@ class ZUid(object):
     """
 
     def __init__(self):
-        self.address = ''
+        self.address = b''
         self.time = 0
 
 cdef void _ZUid_c2p(ZUnique_Id_t * uid, object p_uid) except *:
@@ -45,8 +45,8 @@ class ZNotice(object):
 
     def __init__(self, **options):
         self.kind = ACKED
-        self.cls = 'message'
-        self.instance = 'personal'
+        self.cls = b'message'
+        self.instance = b'personal'
 
         self.uid = ZUid()
         self.time = 0
@@ -55,7 +55,7 @@ class ZNotice(object):
         self.recipient = None
         self.sender = None
         self.opcode = None
-        self.format = "http://zephyr.1ts.org/wiki/df"
+        self.format = b'http://mit.edu/df'
         self.other_fields = []
         self.fields = []
         self._charset = None
@@ -64,10 +64,10 @@ class ZNotice(object):
             setattr(self, k, v)
 
     def getmessage(self):
-        return '\0'.join(self.fields)
+        return b'\0'.join(self.fields)
 
     def setmessage(self, newmsg):
-        self.fields = newmsg.split('\0')
+        self.fields = newmsg.split(b'\0')
 
     message = property(getmessage, setmessage)
 
@@ -118,7 +118,7 @@ cdef void _ZNotice_c2p(ZNotice_t * notice, object p_notice) except *:
     if notice.z_message is NULL:
         p_notice.message = None
     else:
-        p_notice.message = PyString_FromStringAndSize(notice.z_message, notice.z_message_len)
+        p_notice.message = <bytes>notice.z_message[:notice.z_message_len]
 
     p_notice._charset = ZCharsetToString(notice.z_charset)
 
