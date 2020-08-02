@@ -30,9 +30,9 @@ cdef void _ZUid_c2p(ZUnique_Id_t * uid, object p_uid) except *:
 
 cdef void _ZUid_p2c(object uid, ZUnique_Id_t * c_uid) except *:
     inet_aton(uid.address, &c_uid.zuid_addr)
-    c_uid.tv.tv_sec = int(uid.time)
-    c_uid.tv.tv_usec = socket.htonl(int((uid.time - c_uid.tv.tv_sec) * 100000))
-    c_uid.tv.tv_sec = socket.htonl(c_uid.tv.tv_sec)
+    seconds = int(uid.time)
+    c_uid.tv.tv_sec = socket.htonl(seconds)
+    c_uid.tv.tv_usec = socket.htonl(int((uid.time - seconds) * 100000))
 
 cdef char * _string_p2c(object_pool *pool, object string) except *:
     if string is None:
