@@ -2,6 +2,7 @@ import os
 import pwd
 import time
 import select
+import socket
 
 def __error(errno):
     if errno != 0:
@@ -24,12 +25,13 @@ class ZUid(object):
 
 cdef void _ZUid_c2p(ZUnique_Id_t * uid, object p_uid) except *:
     p_uid.address = inet_ntoa(uid.zuid_addr)
-    p_uid.time = uid.tv.tv_sec + (uid.tv.tv_usec / 100000.0)
+    p_uid.time = socket.ntohl(uid.tv.tv_sec) + (socket.ntohl(uid.tv.tv_usec) / 100000.0)
 
 cdef void _ZUid_p2c(object uid, ZUnique_Id_t * c_uid) except *:
     inet_aton(uid.address, &c_uid.zuid_addr)
     c_uid.tv.tv_sec = int(uid.time)
-    c_uid.tv.tv_usec = int((uid.time - c_uid.tv.tv_sec) * 100000)
+    c_uid.tv.tv_usec = socket.htonl(int((uid.time - c_uid.tv.tv_sec) * 100000))
+    c_uid.tv.tv_sec = socket.htonl(c_uid.tv.tv_sec)
 
 cdef char * _string_p2c(object_pool *pool, object string) except *:
     if string is None:
