@@ -1,3 +1,4 @@
+import enum
 import os
 import pwd
 import time
@@ -38,13 +39,25 @@ cdef char * _string_p2c(object_pool *pool, object string) except *:
         object_pool_append(pool, string);
         return string
 
+
 class ZNotice(object):
     """
     A zephyr message
     """
 
+    class Kind(enum.Enum):
+        unsafe = UNSAFE
+        unacked = UNACKED
+        acked = ACKED
+        hmack = HMACK
+        hmctl = HMCTL
+        servack = SERVACK
+        servnak = SERVNAK
+        clientack = CLIENTACK
+        stat = STAT
+
     def __init__(self, **options):
-        self.kind = ACKED
+        self.kind = self.Kind.acked
         self.cls = b'message'
         self.instance = b'personal'
 
@@ -99,7 +112,7 @@ class ZNotice(object):
             object_pool_free(&pool);
 
 cdef void _ZNotice_c2p(ZNotice_t * notice, object p_notice) except *:
-    p_notice.kind = notice.z_kind
+    p_notice.kind = ZNotice.Kind(notice.z_kind)
     _ZUid_c2p(&notice.z_uid, p_notice.uid)
     p_notice.time = notice.z_time.tv_sec + (notice.z_time.tv_usec / 100000.0)
     p_notice.port = int(notice.z_port)
@@ -125,7 +138,7 @@ cdef void _ZNotice_c2p(ZNotice_t * notice, object p_notice) except *:
 cdef void _ZNotice_p2c(object notice, ZNotice_t * c_notice, object_pool *pool) except *:
     memset(c_notice, 0, sizeof(ZNotice_t))
 
-    c_notice.z_kind = notice.kind
+    c_notice.z_kind = notice.kind.value
     _ZUid_p2c(notice.uid, &c_notice.z_uid)
     if notice.time != 0:
         c_notice.z_time.tv_sec = int(notice.time)
