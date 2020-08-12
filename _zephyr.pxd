@@ -93,6 +93,8 @@ cdef extern from "zephyr/zephyr.h":
     int ZRetrieveSubscriptions(unsigned short port, int* nitems)
     int ZGetSubscriptions(ZSubscription_t subslist[], int* nitems)
     int ZFlushSubscriptions()
+    int ZDumpSession(char **, int *)
+    int ZLoadSession(char *, int)
 
     # XXX: This should really be const char * (or const_char *) -- see
     # <http://docs.cython.org/src/tutorial/strings.html#dealing-with-const>

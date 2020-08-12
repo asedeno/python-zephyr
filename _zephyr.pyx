@@ -287,3 +287,20 @@ def getSubscriptions():
         ZFlushSubscriptions()
         free(csubs)
 
+def dumpSession():
+    cdef char *session_data
+    cdef int session_data_len
+
+    errno = ZDumpSession(&session_data, &session_data_len)
+    __error(errno)
+
+    try:
+        # Note: byte order doesn't matter; each char is one byte.
+        return b''.join([session_data[i].to_bytes(1, 'big', signed=True) for i in range(session_data_len)])
+    finally:
+        if session_data:
+            free(session_data)
+
+def loadSession(session_data):
+    errno = ZLoadSession(session_data, len(session_data))
+    __error(errno)

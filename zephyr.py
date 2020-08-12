@@ -5,12 +5,15 @@ from _zephyr import receive, ZNotice
 
 __inited = False
 
-def init():
+def init(session_data=None):
     global __inited
     if not __inited:
         _z.initialize()
-        _z.openPort()
-        _z.cancelSubs()
+        if session_data:
+            _z.loadSession(session_data)
+        else:
+            _z.openPort()
+            _z.cancelSubs()
         __inited = True
 
 class Subscriptions(set):
@@ -24,11 +27,13 @@ class Subscriptions(set):
     def __new__(cls):
         if not '_instance' in cls.__dict__:
             cls._instance = super().__new__(cls)
+            cls._instance._cleanup = True
             init()
         return cls._instance
 
     def __del__(self):
-        _z.cancelSubs()
+        if self._cleanup:
+            _z.cancelSubs()
         try:
             super().__del__()
         except AttributeError:
@@ -66,3 +71,11 @@ class Subscriptions(set):
         _z.unsub(*item)
 
         super().remove(item)
+
+    @property
+    def cleanup(self):
+        return self._cleanup
+
+    @cleanup.setter
+    def cleanup(self, value: bool):
+        self._cleanup = bool(value)
