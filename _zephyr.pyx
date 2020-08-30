@@ -41,7 +41,6 @@ cdef char * _string_p2c(object_pool *pool, object string) except *:
         object_pool_append(pool, string);
         return string
 
-
 class ZNotice(object):
     """
     A zephyr message
@@ -275,21 +274,33 @@ def getSubscriptions():
     cnum = 0
     errno = ZRetrieveSubscriptions(0, &cnum)
     __error(errno)
-    # save the count as a Python variable since ZGetSubscriptions
-    # mutates its argument
-    num = cnum
-    csubs = <ZSubscription_t*>calloc(num, sizeof(ZSubscription_t))
-    try:
-        errno = ZGetSubscriptions(csubs, &cnum)
-        __error(errno)
+    return __get_subs()
 
-        subs = []
-        for i in range(num):
-            subs.append((csubs[i].zsub_class, csubs[i].zsub_classinst, csubs[i].zsub_recipient))
+def getDefaultSubscriptions():
+    cdef ZSubscription_t *csubs
+
+    cdef int cnum
+    cnum = 0
+    errno = ZRetrieveDefaultSubscriptions(&cnum)
+    __error(errno)
+    return __get_subs()
+
+def __get_subs():
+    subs = []
+    cdef ZSubscription_t csub
+    cdef int cnum
+    cnum = 1
+    try:
+        while True:
+            errno = ZGetSubscriptions(&csub, &cnum)
+            if errno == ZERR_NOMORESUBSCRIPTIONS:
+                break
+            __error(errno)
+            if cnum:
+                subs.append((csub.zsub_class, csub.zsub_classinst, csub.zsub_recipient))
         return subs
     finally:
         ZFlushSubscriptions()
-        free(csubs)
 
 def dumpSession():
     cdef char *session_data

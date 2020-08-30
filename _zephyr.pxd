@@ -38,6 +38,9 @@ cdef extern from "zephyr/zephyr.h":
         ZCHARSET_ISO_8859_1,
         ZCHARSET_UTF_8
 
+    enum _ZErrors:
+        ZERR_NOMORESUBSCRIPTIONS
+
     ctypedef struct ZUnique_Id_t:
         in_addr zuid_addr
         timeval tv
@@ -92,6 +95,7 @@ cdef extern from "zephyr/zephyr.h":
     char * ZGetSender()
     char * ZGetRealm()
     int ZRetrieveSubscriptions(unsigned short port, int* nitems)
+    int ZRetrieveDefaultSubscriptions(int* nitems)
     int ZGetSubscriptions(ZSubscription_t subslist[], int* nitems)
     int ZFlushSubscriptions()
     int ZDumpSession(char **, int *)
