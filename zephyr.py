@@ -5,7 +5,7 @@ from _zephyr import receive, ZNotice
 
 __inited = False
 
-def init(session_data=None):
+def init(session_data=None, cancel_subs=True):
     global __inited
     if not __inited:
         _z.initialize()
@@ -13,7 +13,8 @@ def init(session_data=None):
             _z.loadSession(session_data)
         else:
             _z.openPort()
-            _z.cancelSubs()
+            if cancel_subs:
+                _z.cancelSubs()
         __inited = True
 
 class Subscriptions(set):
@@ -71,6 +72,17 @@ class Subscriptions(set):
         _z.unsub(*item)
 
         super().remove(item)
+
+    def add_default_subs(self):
+        _z.subDefaults()
+        self.resync()
+
+    def resync(self):
+        subs = _z.getSubscriptions()
+        super().clear()
+        for c_item in subs:
+            item = tuple(x.decode('utf-8') for x in c_item)
+            super().add(self._fixTuple(item))
 
     @property
     def cleanup(self):

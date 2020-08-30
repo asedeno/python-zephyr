@@ -199,7 +199,11 @@ def sub(cls, instance, recipient):
     newsub[0].zsub_classinst = instance
     newsub[0].zsub_recipient = recipient
 
-    errno = ZSubscribeTo(newsub, 1, 0)
+    errno = ZSubscribeToSansDefaults(newsub, 1, 0)
+    __error(errno)
+
+def subDefaults():
+    errno = ZSubscribeTo(NULL, 0, 0)
     __error(errno)
 
 def subAll(lst):
@@ -213,7 +217,7 @@ def subAll(lst):
             newsubs[i].zsub_classinst = lst[i][1]
             newsubs[i].zsub_recipient = lst[i][2]
 
-        errno = ZSubscribeTo(newsubs, len(lst), 0)
+        errno = ZSubscribeToSansDefaults(newsubs, len(lst), 0)
         __error(errno)
     finally:
         if newsubs:

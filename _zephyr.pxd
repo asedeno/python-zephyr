@@ -86,6 +86,7 @@ cdef extern from "zephyr/zephyr.h":
     int ZCheckAuthentication(ZNotice_t *, sockaddr_in *)
     void ZFreeNotice(ZNotice_t * notice)
     int ZSubscribeTo(ZSubscription_t subslist[], int nitems, unsigned short port)
+    int ZSubscribeToSansDefaults(ZSubscription_t subslist[], int nitems, unsigned short port)
     int ZUnsubscribeTo(ZSubscription_t subslist[], int nitems, unsigned short port)
     int ZCancelSubscriptions(unsigned short port)
     char * ZGetSender()
