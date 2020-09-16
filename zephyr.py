@@ -74,6 +74,16 @@ class Subscriptions(set):
 
         super().remove(item)
 
+    def discard(self, item):
+        try:
+            self.remove(item)
+        except KeyError:
+            pass
+
+    def clear(self):
+        _z.cancelSubs()
+        super().clear()
+
     def add_default_subs(self):
         _z.subDefaults()
         self.resync()
@@ -84,6 +94,37 @@ class Subscriptions(set):
         for c_item in subs:
             item = tuple(x.decode('utf-8') for x in c_item)
             super().add(self._fixTuple(item))
+
+    # Disable set functions that do not work with the Subscription object.
+    def update(self, *_others):
+        raise NotImplementedError
+
+    def __ior__(self, other):
+        raise NotImplementedError
+
+    def intersection_update(self, *_others):
+        raise NotImplementedError
+
+    def __iand__(self, other):
+        raise NotImplementedError
+
+    def difference_update(self, *_others):
+        raise NotImplementedError
+
+    def __isub__(self, other):
+        raise NotImplementedError
+
+    def symmetric_difference_update(self, *_others):
+        raise NotImplementedError
+
+    def __ixor__(self, other):
+        raise NotImplementedError
+
+    def discard(self, _elem):
+        raise NotImplementedError
+
+    def pop(self, _elem):
+        raise NotImplementedError
 
     @property
     def cleanup(self):
