@@ -43,15 +43,16 @@ class Subscriptions(set):
     def _fixTuple(self, item):
         if len(item) != 3:
             raise TypeError('item is not a zephyr subscription tuple')
+        item = [elt if isinstance(elt, bytes) else elt.encode('utf-8')
+                for elt in item]
 
-        item = list(item)
-        if item[2].startswith('*'):
+        if item[2].startswith(b'*'):
             item[2] = item[2][1:]
 
-        if '@' not in item[2]:
-            item[2] += f'@{_z.realm().decode("utf-8")}'
+        if b'@' not in item[2]:
+            item[2] += b'@' + _z.realm()
 
-        return tuple(x.encode('utf-8') for x in item)
+        return tuple(item)
 
     def add(self, item):
         item = self._fixTuple(item)
